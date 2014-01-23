@@ -1,0 +1,10 @@
+
+poisson = imread('poissonDisk.gif');
+randomi = ones(size(poisson));
+blacksum = sum(poisson(:));
+
+m = 
+
+for i = 1:blacksum
+    randomi(randi(
+end;

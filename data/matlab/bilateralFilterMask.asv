@@ -1,0 +1,39 @@
+clc;
+clear all;
+
+m_size = 64;
+sigma = 0.2;
+
+
+m_step = zeros(m_size);
+
+m_step(:, 1:(m_size / 2)) = m_step(:, 1:(m_size / 2)) + sigma;
+m_step(:, (m_size / 2):m_size) = m_step(:, (m_size / 2):m_size) + 1 - sigma;
+m_step = m_step + (rand(m_size) .* sigma - sigma);
+
+
+gaussianFilter = fspecial('gaussian',[3 3], 0.5);
+m_step = imfilter(m_step, gaussianFilter, 'replicate');
+
+subplot(2,3,[1 4]);
+
+surf(m_step);
+
+%% Vyhlazení gaussovskım filtrem
+
+gaussianFilter = fspecial('gaussian',[32 32], 10);
+gauss_step = imfilter(m_step, gaussianFilter, 'replicate');
+
+subplot(2,3,2);
+surf(gauss_step);
+
+subplot(2,3,5);
+surf(gaussianFilter);
+
+
+%% Vyhlazení Bilaterálním filtrem
+
+bil_step = bfilter2(m_step, 16, [10, 0.25]);
+
+subplot(2,3,3);
+surf(bil_step);

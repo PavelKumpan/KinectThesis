@@ -1,0 +1,44 @@
+\chapter{Implementace}
+
+Navr¾ená metoda byla implementována pod platformou .NET s pou¾itím jazyka C\#. Pro práci se zaøízením Kinect bylo vyu¾ito \emph{Kinect for Windows SDK} , k maticovým výpoètùm poslou¾ila knihovna math.net. Kód pro paralelní zpracování jsem napsal pomocí OpenCL, propojení s .NET aplikací realizuje knihovna Cloo. 
+
+Podrobný popis implementace vý¹e pøedstavené metody je mimo rozsah této práce. Zaujímá-li se ètenáø o tuto oblast blí¾e, doporuèuji nahlédnout pøímo do zdrojových kódù, které jsou k práci pøilo¾eny pøípadnì lze hlavní vývojovou vìt nalézt také na GitHubu: \href{https://github.com/PavelKumpan/KinectDepth}{\small\texttt{https://github.com/PavelKumpan/KinectDepth}}. V této kapitole jsou alespoò zevrubnì pøiblí¾eny zajímavé nebo ménì obvyklé èásti projektu.
+
+\section{Paralelizace}
+
+\subsection{Krátký úvod do výpoètù na grafických kartách}
+
+I pøes rapidní nárùst výkonu bì¾nì dostupných procesorù v posledních letech jsou zde stále oblasti výpoètù u kterých je výpoèetní nároènost úlohy na bì¾ném procesoru mimo únosnou mez. Spoleèným rysem velké èásti tìchto úloh je to, ¾e se jedná o úlohy paralelní, tedy takové, které je mo¾né øe¹it na více výpoèetních jednotkách zároveò a do jisté míry nezávisle. Pøesto¾e jsou vícevláknové procesory dnes ji¾ standardem, nejsou pro takovéto výpoèty zcela ideálnì pou¾itelné. Poèet vláken je zde stále relativnì malý (v jednotkách a¾ desítkách), kvùli èemu nemù¾ou konkurovat z principu paralelnì navr¾eným grafickým kartám se stovkami a¾ tisíci výpoèetních jader.
+
+Grafické karty nebyly døíve navrhovány tak, aby umo¾nily pøímé programování.
+
+Spoleènost nVidia uvedla své øe¹ení pro programování nad grafickou kartou v roce 2007 pod oznaèením CUDA. Konkurenèní technologie Stream od AMD (ATI) spatøila svìtlo svìta roce 2008. Nutnost standardizace vedla k vytvoøení jednotného rozhraní a jazykové specifikace OpenCL spravovaného konsorciem Khronos. To je nyní podporováno grafickými kartami nVidia, AMD a Intel.
+
+\subsection{Struktura programu na GPU}
+
+Program který vyu¾ívá grafickou kartu lze v zásadì rozdìlit na tøi èásti:
+
+\begin{itemize}
+\item \emph{kernel},
+\item \emph{data},
+\item \emph{hostitelská aplikace}.
+\end{itemize}
+
+\emph{Kernel} je podprogram v jazyce OpenCL C který bì¾í na grafické kartì a realizuje potøebné výpoèty. Kernely se zapisují do souborù s pøíponou \emph{*.cl}. 
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[label=some-code,caption={Jednoduchý kernel pro souèet dvou vektorù}]
+__kernel void vector_add_gpu (__global const float* src_a,
+                     		  __global const float* src_b,
+                     		  __global float* res,
+		                      const int num)
+{
+   const int idx = get_global_id(0);
+   if (idx < num)
+      res[idx] = src_a[idx] + src_b[idx];
+}
+\end{lstlisting}
+\end{minipage}
+
+\emph{Data} se kterými je výpoèet provádìn je tøeba nejprve zkopírovat z operaèní pamìti RAM do pamìti grafické karty. Výsledky výpoètù jsou poté opìt pøekopírovány z pamìti GPU do RAM.
+\emph{Hostitelská aplikace} se stará o agendu. Jedná se o bì¾nou aplikaci bì¾ící na CPU, která pomocí rozhraní OpenCL naèítá, kompiluje a spou¹tí kernely, kopíruje data a poskytuje u¾ivatelské rozhraní. 

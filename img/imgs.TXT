@@ -1,0 +1,12 @@
+edge.pdf 
+
+01 - srovnání bilaterálního filtru s gaussovcským rozostřením 
+    - vlastní tvorba
+
+PoissonDisk.gif - ukázka náhodně vygenerovaného rozložení metodou PoissonDisk
+
+02 - srovnání vzorků pravidelného, náhodného a poisson disk
+
+octree_rabit - http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter37.html
+
+kinect_senzor - http://www.microsoft.com/global/en-us/news/publishingimages/Kinect_Sensor_Print.jpg

@@ -1,0 +1,50 @@
+\chapter{Zaøízení Kinect}
+
+Kinect je hardwarový ovladaè, který byl uveden jako doplnìk ke hrací konzoli Xbox 360 spoleèností Microsoft v listopadu roku 2010. SDK pro tvorbu aplikací tøetích stran pro nekomerèní u¾ití Microsoft vydal v èervnu 2011. V únoru 2012 byla uvolnìna verze Kinectu pøímo urèená pro operaèní systém Windows a pou¾ití s PC. V roce 2014 se oèekává uvedení nové verze Kinect 2.0 s vylep¹enými parametry hardwaru.
+
+\section{Hardwarové parametry}
+
+Zaøízení obsahuje RGB kameru o 8-bitovém maximálním rozli¹ení $1280 \times 960$ pixelù schopnou pracovat s frekvencí snímkování 12~Hz, pøípadnì lze pou¾ít rozli¹ení $640 \times 480$ a ni¾¹í s frekvencí 30~Hz. Dále se v zaøízení nachází infraèervený hloubkový senzor o maximálním rozli¹ení $640 \times 480$~pixelù a 11-bitové obrazové informaci s úèinným snímáním objektù ve vzdálenosti 0,4 - 4 m. Zorný úhel je $43 \,^{\circ}$ vertikálnì a $53 \,^{\circ}$ horizontálnì. Maximální frekvence snímkování je 30~Hz. 
+
+Firmware Kinectu umo¾òuje detekci osob ve scénì i jednotlivých gest. Zaøízení také obsahuje pole mikrofonù pro snímání zvukù okolí a je vybaveno servomotory pro autonomní zmìnu náklonu.
+
+Pro tvorbu softwaru lze vyu¾ít dvou nejroz¹íøenìj¹ích SDK. Oficiální Kinect SDK od spoleènosti Microsoft a komunitní otevøené SDK OpenKinect. Pro úèely této práce bylo pou¾ito oficiální Kinect SDK.
+
+\begin{figure}[htbp]
+  	\centering
+  	\includegraphics[width=\textwidth]{img/Kinect_Sensor.png}
+  	\caption{Zaøízení Kinect}
+  	\label{fig:kinect}
+\end{figure}
+
+\section{Hloubkový senzor}
+
+V této práci byl primárnì vyu¾íván hloubkový senzor zaøízení. Skládá se z infraèerveného laserového emitoru a monochromatického CMOS senzoru. Díky pou¾ití infraèerveného rozsahu spektra jej lze vyu¾ívat relativnì nezávisle na svìtelných podmínkách. Emitor na snímanou scénu stále promítá vzor bodù. 
+
+\begin{figure}[htbp]
+  	\centering
+  	\includegraphics[width=0.6\textwidth]{img/frame_infra.jpg}
+  	\caption{Snímek promítaného vzoru v infraèerveném spektru}
+  	\label{fig:kinect}
+\end{figure}
+
+Body je následnì snímán CMOS senzorem a z porovnání rozdílu mezi vzorem snímaným a promítaným jsou pomocí stereo triangulace vypoèteny vzdálenosti pro jednotlivé pixely snímaného obrazu. Ty jsou poté do déle pøedány jako pole 16-bitových hodnot které tvoøí takzvanou hloubkovou mapu. První tøi bity obsahují informaci o hráèi, nachází-li se bod na nìjakém. Horních tøináct bitù pak obsahuje vzdálenost bodu scény od senzoru v milimetrech.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{img/kinect_model.pdf}
+  \caption{Princip hloubkového senzoru}
+  \label{fig:model}
+\end{figure}
+
+
+
+
+\begin{figure}[htbp]
+  	\centering
+  	\includegraphics[width=0.6\textwidth]{img/frame_depth.jpg}
+  	\caption{Hloubkový snímek s hloubkou vyjádøenou pomocí odstínù ¹edi}
+  	\label{fig:kinect}
+\end{figure}
+
+%http://en.wikipedia.org/wiki/Kinect

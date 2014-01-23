@@ -1,0 +1,134 @@
+\documentclass[10pt,a4paper]{report}
+
+\newif\ifpaper
+
+%\papertrue
+\paperfalse
+
+\usepackage{color}
+\definecolor{GRAY}{rgb}{0.5,0.5,0.5}
+\ifpaper
+  	\definecolor{URLCOLOR}{rgb}{0.7,0.7,0.7}
+	\definecolor{STRINGCOLOR}{rgb}{0.4,0.4,0.4}
+	\definecolor{KEYWORDCOLOR}{rgb}{0,0,0}
+\else
+  	\definecolor{URLCOLOR}{rgb}{0.1,0.3,0.6}
+	\definecolor{STRINGCOLOR}{rgb}{0,0.6,0}
+	\definecolor{KEYWORDCOLOR}{rgb}{0.1,0.3,0.6}
+\fi
+
+
+
+\usepackage[latin2]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[total={14cm,25cm}, top=3cm, left=3cm, includefoot]{geometry}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{multicol}
+\usepackage[urlcolor=URLCOLOR,hidelinks]{hyperref}
+\usepackage{listings} 
+\usepackage{pxfonts}
+\renewcommand{\lstlistingname}{Kód}
+\renewcommand\lstlistlistingname{Seznam zdrojových kódù}
+\def\lstlistingautorefname{Kód}
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=left,
+  numbersep=6pt, 
+  numberstyle=\tiny\color{GRAY},
+  rulecolor=\color{GRAY},     
+  keywordstyle=\bfseries\color{KEYWORDCOLOR},
+  commentstyle=\color{GRAY},
+  stringstyle=\color{STRINGCOLOR},
+  breaklines=true,
+  breakatwhitespace=true,
+  captionpos=b,
+  keepspaces=true, 
+  tabsize=3
+}
+
+
+\begin{document}
+\nocite{*} 
+
+
+\thispagestyle{empty}%
+\vspace*{-20mm}
+\begin{center}
+   {\Large \sffamily Vysoké uèení technické v~Brnì\\[8pt]}
+   {\Large \sffamily Fakulta strojního in¾enýrství\\[8pt]
+   Ústav mechaniky tìles, mechatroniky a biomechaniky\\}
+    \par \bigskip \hrule
+   \vspace{40mm}
+
+{\Huge\sffamily\bfseries Bakaláøská práce\\ }
+   \vspace{10mm}
+
+{\Large \sffamily \bfseries} %
+
+\vspace{10mm}%
+
+\par \vfill {\large \sffamily Brno 2014}
+
+\vspace{15mm}%10mm}%
+
+\end{center}
+
+
+\newpage
+\thispagestyle{empty}%
+\section*{Abstrakt}
+	Je obecnì známou vìcí, ¾e èlovìk bývá pøi zkoumání grafického návrhu rozptylován okolním textem, pokud mu dává nìjaký smysl. Úkolem Lorem Ipsum je pak nahradit klasický smysluplný text vhodnou bezvýznamovou alternativou s relativnì bì¾ným rozlo¾ením slov. To jej dìlá narozdíl od opakujícího se "Tady bude text. Tady bude text..." mnohem více èitelnìj¹ím. V dne¹ní dobì je Lorem Ipsum pou¾íváno spoustou DTP balíkù a webových editorù coby výchozí model výplòového textu. Ostatnì si zkuste zadat frázi "lorem ipsum" do vyhledavaèe a sami uvidíte. Bìhem let se objevily rùzné varianty a odvozeniny od klasického Lorem Ipsum, nìkdy náhodou, nìkdy úèelnì (napø. pro pobavení ètenáøe).
+\section*{Abstract}
+	Navzdory v¹eobecnému pøesvìdèení Lorem Ipsum není náhodný text. Jeho pùvod má koøeny v klasické latinské literatuøe z roku 45 pøed Kristem, co¾ znamená, ¾e je více jak 2000 let staré. Richard McClintock, profesor latiny na univerzitì Hampden-Sydney stát Virginia, který se zabýval témìø neznámými latinskými slovy, odhalil prapùvod slova consectetur z pasá¾e Lorem Ipsum. Nejstar¹ím dílem, v nìm¾ se pasá¾e Lorem Ipsum pou¾ívají, je Cicerova kniha z roku 45 pøed Kristem s názvem "De Finibus Bonurum et Malorum" (O koncích dobra a zla), konkrétnì jde pak o kapitoly 1.10.32 a 1.10.33. Tato kniha byla nejvíce známá v dobì renesance, jeliko¾ pojednávala o etice. Úvodní øádky Lorem Ipsum, "Lorem ipsum dolor sit amet...", pocházejí z kapitoly 1.10.32 z uvedené knihy.
+	
+\newpage
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\vfill
+
+\section*{Podìkování}
+
+Dìkuji tomu ¾e Lorem Ipsum má koøeny v klasické latinské literatuøe z roku 45 pøed Kristem, co¾ znamená, ¾e je více jak 2000 let staré. Richard McClintock, profesor latiny na univerzitì Hampden-Sydney stát Virginia, který se zabýval témìø neznámými latinskými slovy, odhalil prapùvod slova consectetur z pasá¾e Lorem Ipsum. Nejstar¹ím dílem, v nìm¾ se pasá¾e Lorem Ipsum pou¾ívají, je
+
+\vspace{20mm}
+\newpage
+\thispagestyle{empty}
+\rule{0pt}{10mm}
+\vfill
+
+\section*{Èestné prohlá¹ení}
+Prohla¹uji na svou èest, ¾e bakaláøskou práci na téma \uv{\textit{Vytvoøení 3D modelu prostøedí pomocí senzoru Kinect}} jsem vypracoval samostatnì, pod vedením vedoucího bakaláøské práce pana Ing. Michala Rù¾ièky a s pou¾itím uvedených literárních a internetových zdrojù. 
+
+\vspace{20mm}
+\setlength{\columnsep}{30pt}
+\begin{multicols}{2} 
+		V Brnì dne 5. 5. 2014
+	\columnbreak
+	\begin{center}
+		.............................................\\*
+		Pavel Kumpán
+	\end{center}
+\end{multicols}
+
+\tableofcontents
+\include{ch_intro}
+\include{ch_kinect}
+\include{ch_method}
+\include{ch_implementation}
+\include{ch_conclusion}
+
+\listoffigures
+\lstlistoflistings
+\listoftables
+\end{document}

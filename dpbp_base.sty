@@ -1,0 +1,310 @@
+% Robert Grepl, grepl@fme.vutbr.cz
+%------------------------------------------------------------------------------
+% Pouzity fragmenty z dipp.sty http://old.mendelu.cz/~rybicka/zpract/dippwin/dipp.sty
+% a dalsi zdroje z internetu
+%
+%===============================================================================
+%                ZAKLADNI BALICKY
+%===============================================================================
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xspace,colortbl}
+\usepackage[breakall]{truncate}
+\usepackage{fancybox}
+%----------------
+
+%=============================================================================         
+%                          FONTY
+%------------------------------------------------------------------------------
+%\def\markfont{\normalfont\footnotesize\sffamily}
+%\def\pgfont{\normalfont\bfseries\sffamily}
+%------------------------------------------------------------------------------
+%                          ODDILY TEXTU
+%------------------------------------------------------------------------------
+%\renewcommand\chapter{\if@openright\cleardoublepage\else\clearpage\fi
+%                    \thispagestyle{plain}%
+%                    \global\@topnum\z@
+%                    \@afterindentfalse
+%                    \secdef\@chapter\@schapter}
+%\def\@makechapterhead#1{%
+%  %\vspace*{1\p@}%
+%    {\parindent \z@ \raggedright  \sffamily %\normalfont
+%    \ifnum \c@secnumdepth >\m@ne
+%      \if@mainmatter
+%        \Huge \bfseries \scalebox{1}{\thechapter} % \@chapapp\space  \thechapter
+%        % \par\nobreak
+%        %\vskip 20\p@
+%      \fi
+%    \fi
+%    \interlinepenalty\@M
+%    \huge \bfseries \hspace{7mm} #1\par\nobreak
+%    \vskip 40\p@
+%  }}
+%\def\@makeschapterhead#1{%
+% \vspace*{50\p@}%
+% {\parindent \z@ \raggedright
+%   \sffamily %\normalfont
+%   \interlinepenalty\@M
+%   \Huge \bfseries  #1\par\nobreak
+%   \vskip 40\p@
+% }}
+%%-------------------------
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                   {-3.5ex \@plus -1ex \@minus -.2ex}%
+                   {2.3ex \@plus.2ex}%
+                   {\normalfont\rmfamily\Large\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                   {-3.25ex\@plus -1ex \@minus -.2ex}%
+                   {1.5ex \@plus .2ex}%
+                   {\normalfont\rmfamily\large\bfseries}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                   {-3.25ex\@plus -1ex \@minus -.2ex}%
+                   {1.5ex \@plus .2ex}%
+                   {\normalfont\normalsize\rmfamily\bfseries}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                   {3.25ex \@plus1ex \@minus.2ex}%
+                   {-1em}%
+                   {\normalfont\normalsize\bfseries}}
+                   
+%------------------------------------------------------------------------------
+%               OBRAZKY
+%------------------------------------------------------------------------------
+
+\def\figurename{Obr.}
+\def\tablename{Tab.}
+
+\newcommand{\figleft}[3]{\piccaptioninside \piccaption[#1]{\small \textsc{#1}  \label{#3}}  \parpic[l]{\includegraphics{#2}}\noindent}%
+%---------
+\newcommand{\figright}[3]{\piccaptioninside \piccaption[#1]{\small \textsc{#1} \label{#3}}  \parpic[r]{\includegraphics{#2}}\noindent}%
+%---------
+\newcommand{\figfull}[3]{%
+        \begin{figure}[htb!]
+        \centering
+        \includegraphics{#2}
+        \par \medskip  \parbox[c]{0.8\textwidth}{\caption[#1]{\small\textsc{#1}} \label{#3}}
+        \end{figure}
+        }
+%---------
+\newcommand{\tabfull}[3]{%
+        \begin{table}[htb!]
+        \centering
+        #2
+        \par \medskip  \parbox[c]{0.8\textwidth}{\caption[#1]{\small\textsc{#1}} \label{#3}}
+        \end{table}
+        }
+%===================================================================                   
+%------------------------------------------------------------------------------
+%              LITERATURA A ODKAZY
+%------------------------------------------------------------------------------
+\renewenvironment{thebibliography}[1]%
+      {%\section{\bibname  
+        %}%   % komentar- pokud exportujeme data z KNT, pak neni zadouci druhy titulek...       
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m} 
+            
+%------------------------------------------------
+\newcommand{\lititem}[5]{%
+\bibitem{#1}   % Identificator
+\textsc{#2:}            % Authors e.g.  Novák,K., Barel,L.
+\textit{#3},   % Tittle
+#4,           % Place of conference / Publisher
+#5}             % Year     
+%------------------------------------------------
+\newcommand{\lititemwww}[4]{%
+\bibitem{#1}   % Identificator
+\textsc{#2:}, %
+\url{#3},          % link
+#4}             % Date of download       
+%------------------------------------------------
+
+
+
+
+
+%------------------------------------------------------------------------------
+%              VÝÈTY A SEZNAMY
+%------------------------------------------------------------------------------
+% Uprava vzdalenosti mezi polozkami listu (item)
+% \AfterBegin{itemize}{\addtolength{\itemsep}{-5pt}}
+% \AfterBegin{enumerate}{\addtolength{\itemsep}{-5pt}}
+%------------------------------------------------
+
+
+%------------------------------------------------------------------------------
+%              OBSAHY
+%------------------------------------------------------------------------------
+\renewcommand\tableofcontents{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\contentsname
+        \@mkboth{%
+           \small \scshape\contentsname}{\small \scshape\contentsname}}%
+    \@starttoc{toc}%
+    \if@restonecol\twocolumn\fi
+    }
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+    
+    
+%------------
+\renewcommand\listoffigures{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\listfigurename
+      \@mkboth{\small \scshape\listfigurename}%
+              {\small \scshape\listfigurename}}%
+    \@starttoc{lof}%
+    \if@restonecol\twocolumn\fi
+    }
+%------    
+\renewcommand*\l@figure{\@dottedtocline{1}{1.5em}{2.3em}}
+%------
+\renewcommand\listoftables{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\listtablename
+      \@mkboth{%
+          \small \scshape\listtablename}{\small \scshape\listtablename}}%
+    \@starttoc{lot}%
+    \if@restonecol\twocolumn\fi
+    }    
+%------------------------------------------------------------------------------  
+%       CITAT
+%------------------------------------------------------------------------------  
+\newcommand{\citat}[3]{%
+          %\begin{tabular}{ll}
+          %\rule{1mm}{\textheight}& \parbox[c]{0.8\textwidth}{\itshape #1} \\
+          %\end{tabular}
+          %
+          \vspace{3mm}
+          \noindent
+          %\framebox{
+          \vrule width 1mm \hspace{3mm} \parbox[c]{0.8\textwidth}{\textit{#1} \\ \textsc{#2} \cite{#3}}%}
+          \vspace{3mm}
+          %\emph{
+          %#1} \\ #2 \cite{#3}%
+          %\end{quote} %
+           }
+%------------------------------------------------------------------------------  
+%       CHAPTERABSTRACT
+%------------------------------------------------------------------------------             
+%\newcommand{\chapterabstract}[1]{\framebox{\parbox[c][1\height][c]{0.95\textwidth}{\parbox[c][1.2\height][c]{0.55\textwidth}{\textit{#1}}}}}%
+%\newcommand{\chapterabstract}[1]{\doublebox{\parbox{0.95\textwidth}{\textit{#1}}}}
+\newcommand{\chapterabstract}[1]{ %\hrule \vspace{3mm}  
+\begin{quote}
+%\parbox{1\textwidth}{%
+\textit{#1}%}   
+\end{quote}\vspace{3mm} \hrule}
+
+%------------------------------------------------------------------------------  
+%           PRIKAZY PRO IMPORT Z TXT GENEROVANEHO KEYNOTE 
+%------------------------------------------------------------------------------   
+\newcommand{\sect}[2]{
+\ifnum#1=1 \chapter{#2} \fi
+\ifnum#1=2 \section{#2}  \fi
+\ifnum#1=3 \subsection{#2} \fi
+\ifnum#1=4 \subsubsection{#2} \fi
+\ifnum#1=5 \paragraph{#2} \fi
+}
+
+
+%------------------------------------------------------------------------------  
+%           TABULKY - SPECIALNI PRIKAZY
+%------------------------------------------------------------------------------   
+\newcommand{\rowintable}[3]{\parbox[t]{30mm}{#1} \hspace{2mm}  \parbox[t]{45mm}{#2} \hspace{3mm} \parbox[t]{45mm}{#3} \\ \vspace{2mm} } %\hrule   }
+
+
+%===================================================================
+\newcommand{\firstpage}[4]{%
+\thispagestyle{empty}%
+\vspace*{-20mm}
+\begin{center}
+   {\Large \sffamily Vysoké u?ení technické v~Brn?\\[8pt]}
+   {\Large \sffamily Fakulta strojního in?ženýrství\\[8pt]
+   Ústav mechaniky t?les, mechatroniky a biomechaniky\\}
+    \par \bigskip \hrule
+   \vspace{40mm}
+
+{\Huge\sffamily\bfseries Bakalá?ská práce\\ }
+   \vspace{10mm}
+{\Huge\sffamily\bfseries #1 \\}
+   \vspace{25mm}
+   {\sffamily #4}
+   \vspace{40mm}
+
+{\Large \sffamily \bfseries #2} %
+
+\vspace{10mm}%
+
+\par \vfill {\large \sffamily Brno #3}
+
+\vspace{15mm}%10mm}%
+
+\end{center}
+\newpage
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\newpage
+} %of newcommand titlepage
+%===================================================================
+\newcommand{\abstrakt}[2]{%
+\thispagestyle{empty}%
+\section*{Abstrakt}
+#1
+\section*{Abstract}
+#2
+\newpage
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\newpage
+}% of abstract 
+%===================================================================
+\newcommand{\podekovani}[1]{%
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\vfill
+\section*{Pod?kování}
+#1
+\vspace{20mm}
+\newpage
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\newpage
+}% of abstract 
+%===================================================================
+%===================================================================
+\newcommand{\prohlaseni}[1]{%
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\vfill
+\section*{?estné prohlá?ení}
+#1
+\vspace{20mm}
+\newpage
+\thispagestyle{empty}%
+\rule{0pt}{10mm}
+\newpage
+}% of abstract 
+%===================================================================
+

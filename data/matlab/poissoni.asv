@@ -1,0 +1,43 @@
+clc;
+clear all;
+
+poisson = imread('poissonDisk.gif');
+[m n] = size(poisson);
+
+randomi = ones(m, m);
+poisson = ~poisson;
+
+blacksum = sum(poisson(:))
+
+
+
+for i = 1:blacksum
+    randomi(randi(m), randi(m), :) = 0;
+end;
+
+
+imwrite(randomi,'random.png');
+imshow(randomi);
+
+
+% grid
+grid = ones(m, m);
+s = rosqrt(blacksum) 
+cellSize = round(m / sqrt(blacksum));
+x = 0;
+y = 0;
+for i = 1:blacksum
+    grid(x + cellSize / 2, y + cellSize / 2, :) = 0;
+    x = x + cellSize;
+    if x > (m - cellSize / 2)
+        x = 0;
+        y = y + cellSize;
+    end;
+end;
+
+imwrite(grid,'grid.png');
+imshow(grid);
+
+sum(~grid(:))
+sum(~randomi(:))
+sum(poisson(:))
