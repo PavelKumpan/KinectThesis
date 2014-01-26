@@ -1,0 +1,18 @@
+\BOOKMARK [0][-]{chapter.1}{Zar\355zen\355 Kinect}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Hardwarov\351 parametry}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Hloubkov\375 senzor}{chapter.1}% 3
+\BOOKMARK [0][-]{chapter.2}{Popis metody}{}% 4
+\BOOKMARK [1][-]{section.2.1}{Stereo triangulace}{chapter.2}% 5
+\BOOKMARK [1][-]{section.2.2}{Filtrov\341n\355 obrazov\375ch dat}{chapter.2}% 6
+\BOOKMARK [1][-]{section.2.3}{Prevod hloubkov\351 mapy na body v prostoru}{chapter.2}% 7
+\BOOKMARK [1][-]{section.2.4}{Spojov\341n\355 skenu}{chapter.2}% 8
+\BOOKMARK [2][-]{subsection.2.4.1}{V\375ber bodu pro zarovn\341n\355}{section.2.4}% 9
+\BOOKMARK [2][-]{subsection.2.4.2}{Z\355sk\341n\355 p\341ru bodu}{section.2.4}% 10
+\BOOKMARK [2][-]{subsection.2.4.3}{Popis algoritmu ICP}{section.2.4}% 11
+\BOOKMARK [1][-]{section.2.5}{Reprezentace bodov\351ho mracna v programov\351 pameti}{chapter.2}% 12
+\BOOKMARK [0][-]{chapter.3}{Implementace}{}% 13
+\BOOKMARK [1][-]{section.3.1}{Paralelizace}{chapter.3}% 14
+\BOOKMARK [2][-]{subsection.3.1.1}{Kr\341tk\375 \372vod do v\375poctu na grafick\375ch kart\341ch}{section.3.1}% 15
+\BOOKMARK [2][-]{subsection.3.1.2}{Struktura programu na GPU}{section.3.1}% 16
+\BOOKMARK [0][-]{chapter.4}{V\375sledky meren\355}{}% 17
+\BOOKMARK [0][-]{chapter.5}{Z\341ver}{}% 18

@@ -1,0 +1,40 @@
+﻿Pro prelozeni textu je nutne pouzit babel minimalne s datem 2008/07/08 aby jiz obsahoval korektni implementaci cestiny.
+Pro korektni preklad ve windows si nainstalujte nejnovejsi MikteX z http://miktex.org/  
+Nainstalujte si kompletni miktex! 
+
+
+   Formulare vysokoskolske kvalifikacni prace VSKP pro LaTeX
+
+	VSKP.sty - stylovy soubor pro generovani sablony
+	VSKP.tex - sablona titulniho listu, licencni smlouvy a abstraktu, vyplnenou stahnete ze Studisu
+	logo - slozka s logy fakult VUT v Brne
+	diplomka.tex - hlavni soubor zaverecne prace
+	licnencni_smlouva.tex - hlavni soubor pro licencni smlouvu (podepsanou volne vlozit do zaverecne prace)
+
+Pouziti: 
+1) soubory VSKP.sty a VSKP.tex a slozku logo vcetne obsahu nakopirovat do adresare s hlavnim dokumentem
+2) do preambule hlavniho dokumentu pridat sablonu a data pro její naplnění:
+
+	\usepackage{VSKP} % Sablona dle smernice rektora
+	\input{VSKP}       % Načte data pro vyplnění šablony 
+
+3) na zacatek hlavniho dokumentu pridat příkazy pro vysázení desek:
+
+	\titul% vytiskne titul práce
+	\abstrakty% vytiskne stránku s abstrakty
+
+Pozn.:
+Pro spravne nacteni loga fakulty v LaTeXu je vhodne pouzit prikaz pro deklaraci formatu grafiky:
+	\usepackage{graphicx}
+	\DeclareGraphicsExtensions{.bmp,.eps,.png}
+Pro pouziti pdf LaTeXu 
+	\usepackage[pdftex]{graphicx}
+	\DeclareGraphicsExtensions{.png,.pdf}
+
+Ukazka pouziti ve vzorove praci je v souboru VSKP_ukazka.zip.
+
+Podrobnejsi informace k pouziti cestiny v Bableu jsou v http://bulletin.cstug.cz/bul20071.shtml 
+
+V ukázce je použito kódování UTF-8. V případě, že preferujete kódování Win-1250:
+* uložte všechny soubory v tomto kódování,
+* nastavte kódování v hlavním souboru diplomka.tex.
