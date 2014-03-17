@@ -4,28 +4,33 @@
 
 V této kapitole bude zevrubnì popsána implementovaná metoda. 
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{img/edge}
-  \caption{}
-  \label{fig:edge}
-\end{figure}
+Metoda má nìkolik èástí
 
-\section{Stereo triangulace}
+\begin{enumerate}
+	\item Pøíprava snímku,
+	\item slícování snímku s pøedchozími,
+	\item zaèlenìní snímku do modelu.
+\end{enumerate}
+
+Pøíprava snímku zahrnuje aplikaci filtrù na vstupní data hloubkové mapy za úèelem vyhlazení a odstranìní ¹umu. Hloubková mapa je následnì pøevedena na mno¾inu souøadnic 
+bodù v prostoru (bodové mraèno).
+
+Pøipravené bodové mraèno je poté tøeba slícovat s body z pøedcházejících snímkù. 
+
+%------------------------------------------------------------------------------------------------------------------------------------------%
 
 \section{Filtrování obrazových dat}
 
 Nasnímaná data nejprve zpracujeme pomocí filtru, ukázalo se ¾e tento krok výraznì zlep¹uje rychlost konvergence a kvalitu výstupù dal¹ích krokù algoritmu. Na hloubkový sken v pravidelném rastru se mù¾eme dívat jako na obrázek o jednom barevném kanálu, co¾ nám umo¾òuje pou¾ít grafické filtry bì¾nì pou¾ívané pro zpracování obrazu. Na¹ím hlavním cílem je redukce ¹umu. K tomu se èasto pou¾ívá Gaussovo rozostøení. Nedostatkem tohoto filtru je v¹ak to, ¾e dochází ke ztrátì informace o hranách v obraze. Tento nedostatek øe¹í bilaterální filtr, který zachovává ostré hrany, ale odstraòuje ¹um.
 
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/edge}
+  \caption{Porovnání masky Gaussovského rozostøení a Bilaterálního filtru a jejich vlivu na hranu}
+  \label{fig:edge}
+\end{figure}
 
-%\begin{figure}[htbp]
-%  \centering
-%  \includegraphics[width=0.8\textwidth]{img/edge}
-%  \caption{Porovnání masky Gaussovského rozostøení a Bilaterálního filtru a jejich vlivu na hranu}
-%  \label{fig:edge}
-%\end{figure}
-
-\begin{figure}[htpb]
+\begin{figure}[!htb]
      \begin{center}
         \subfigure[Pùvodní obrázek]{
             \label{fig:first}
@@ -46,214 +51,259 @@ Nasnímaná data nejprve zpracujeme pomocí filtru, ukázalo se ¾e tento krok výrazn
    \label{fig:subfigures}
 \end{figure}
 
-Bilaterální filtr má jako¾to nelineární filtr v základní implementaci vysokou èasovou nároènost ${O(m * N^{k})}$ ($m$ je poèet pixelù v obraze, $N$ je polomìr jádra filtru, $k$ je poèet rozmìrù obrazu), co¾ je pro úèely filtrace v reálném èase zcela nedostateèné. Proto jsme pou¾ili pøístup, který vyu¾ívá vzorkování filtrované oblasti a èasovou nároènost zlep¹uje na ${O(m * N * k)}$. Pro vzorkování je pou¾ita metoda Poisson Disc. Vzorky získané touto metodou mají rovnomìrnìj¹í rozdìlení ne¾ vzorky vygenerované pomocí pseudonáhodných èísel a oproti vzorkùm s pravidelným møí¾kovým rozlo¾ením nevytváøejí v obrazu fragmenty.
-
-\begin{figure}[tbp]
-     \begin{center}
-        \subfigure[Møí¾ka]{
-            \label{fig:first}
-            \fbox{\includegraphics[width=0.28\textwidth]{img/02-grid.png}}
-        }
-        \subfigure[Náhodný výbìr]{
-           \label{fig:second}
-           \fbox{\includegraphics[width=0.28\textwidth]{img/02-random.png}}
-        }
-        \subfigure[Poisson Disk]{
-            \label{fig:third}
-            \fbox{\includegraphics[width=0.28\textwidth]{img/02-poissonDisk.png}}
-        }
-    \end{center}
-    \caption{%
-        Porovnání vzorku vytvoøeného algoritmem Poisson Disc se vzorkem pravidelné møí¾ky a náhodného výbìru
-     }
-   \label{fig:subsampling}
-\end{figure}
-
 %------------------------------------------------------------------------------------------------------------------------------------------%
 
 \section{Pøevod hloubkové mapy na body v prostoru}
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
   \centering
   \includegraphics[width=\textwidth]{img/kinect_geometry.pdf}
   \caption{Geometrický model Kinectu}
   \label{fig:kinect_geometry}
 \end{figure}
 
-Pro pøevod dat z hloubkové mapy je hloubkový senzor Kinectu nahrazen zjednodu¹eným modelem dírkové komory - viz obrázek ~\ref{fig:kinect_geometry}. Pøedpokládá se, ¾e ka¾dý reálný bod $P$ o souøadnicích $(x, y, z)$ je promítán na obrazovou rovinu le¾ící ve vzdálenosti $f$ od dírky jako bod $P'$ o souøadnicích $(u, v, d)$. Mezi souøadnicemi reálného bodu $P$ a jeho obrazu na obrazové rovinì $P$ platí následující vztahy
+Data dodaná senzorem Kinect ve formì pole hloubek je pro dal¹í zpracování nutné pøevést na souøadnice prostorových bodù. K provedení výpoètu je senzor nahrazen zjednodu¹eným modelem dírkové komory. Pøedpokládá se, ¾e ka¾dý reálný bod $\mathbf{p}$ o souøadnicích $(x, y, z)$ je promítán na obrazovou rovinu le¾ící ve vzdálenosti $f$ od dírky. Prùmìtem je bod $\mathbf{p}'$ o souøadnicích $(u, v, d)$.  Mezi souøadnicemi reálného bodu $\mathbf{p}$ a jeho obrazu na obrazové rovinì $\mathbf{p}$ platí následující vztahy
 
 \begin{equation}
-P(x) = \frac{P'(d) \cdot (P'(u) - c_x)}{f}
-\end{equation}
-\begin{equation}
-P(y) = -\frac{P'(d) \cdot (P'(v) - c_y)}{f}
-\end{equation}
-\begin{equation}
-P(z) = P'(d)
+\begin{split}
+\mathbf{p}(x) = \frac{\mathbf{p}'(d) \cdot (\mathbf{p}'(u) - c_x)}{f_x}		\\ 
+\mathbf{p}(y) = -\frac{\mathbf{p}'(d) \cdot (\mathbf{p}'(v) - c_y)}{f_x}	\\ 
+\mathbf{p}(z) = \mathbf{p}'(d)
+\end{split}
 \end{equation}
 
-kde $(c_x, c_y)$ jsou souøadnice osy ohniska infraèervené kamery Kinectu na snímku - tedy støed snímku. Souøadnice bodu $P'$  $u$ a $v$ jsou souøadnicemi na hloubkové mapì v pixelech. Souøadnice $d$ je hodnota pole hloubkové mapy která odpovídá reálné vzdálenosti v milimetrech. Souøadnice bodu $P$ jsou v milimetrech a vztahují se k lokálnímu souøadnému systému jeho¾ poèátek pøedstavuje právì dírka modelové dírkové komory.
-
+kde $(c_x, c_y)$ jsou souøadnice osy ohniska infraèervené kamery Kinectu na snímku - tedy støed snímku. Souøadnice bodu $\mathbf{p}'$ - $u$ a $v$ pøedstavují pozici pixelech na hloubkové mapì. Hodnota $d$ reprezentuje hloubku, tedy reálnou vzdálenost mezi senzorem a bodem. Souøadnice bodu $\mathbf{p}$ v milimetrech se vztahují k lokálnímu souøadnému systému jeho¾ poèátek pøedstavuje právì dírka modelové dírkové komory.
 
 %------------------------------------------------------------------------------------------------------------------------------------------%
 
-\section{Spojování skenù}
+\section{Vytvoøení normálové mapy}
 
-Pro sestavení scény byl pou¾it algoritmus ICP (iterative closest point - iterace pøes nejbli¾¹í bod). Jedná se o iteraèní algoritmus pro spojování bodových mraèen. 
+K dal¹ímu zpracování je krom souøadnic jednotlivých bodù ve snímku tøeba znát i hodnoty normálových vektorù ploch snímané scény v tìchto bodech. Pro zjednodu¹ení výpoètu urèíme jako normálu plochy scény v daném bodì jako normalizovaný normálový vektor roviny urèené tímto bodem a sousedními body v horizontálním a vertikálním smìru.
 
+\begin{equation}
+\begin{split}
+\mathbf{u} = \mathbf{p}_{i + 1, j} - \mathbf{p}_{i, j}  \\
+\mathbf{v} = \mathbf{p}_{i, j + 1} - \mathbf{p}_{i, j}  \\
+\mathbf{n} = \frac{\mathbf{u} \times \mathbf{v}}{|\mathbf{u} \times \mathbf{v}|}
+\end{split}
+\end{equation}
+
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img/normals.png}
+  \caption{Normály scény znázornìné pomocí virtuálních barev}
+  \label{fig:kinect_normals}
+\end{figure}
+
+%------------------------------------------------------------------------------------------------------------------------------------------%
+
+\section{Spojování snímkù}
 % p = b, q = t
 
-Vstupní data pøedstavují dvì mno¾iny souøadnic bodù ${p_i}$ a ${q_i}$, $i\in1,...,n$ ve trojrozmìrném prostoru. Mno¾ina bodù  $\mathbf{P}$ pøedstavuje základní snímek, mno¾ina $\mathbf{Q}$ nový snímek, který chceme zarovnat ke snímku $\mathbf{P}$.
+Souøadnice bodù nového snímku se vtahují k lokálnímu souøadnému systému s poèátkem v poloze senzoru pøi poøízení snímku. Pro sestavení celkového modelu scény je v¹ak tøeba v¹echny snímky pøevést do jednotného globálního souøadného systému. Pro jednoduchost jej ztoto¾níme se souøadným systémem prvního zpracovávaného snímku.
 
-Problém pøedstavuje zarovnání nového snímku Q k pøedchozímu snímku P. P a Q obsahují souøadnice bodù vzhledem k aktuální poloze senzoru. Snímky v¹ak byly poøízeny v rùzných polohách senzoru. Chceme tedy body nového snímku posunout lokálního souøadného systému senzoru do globálního souøadného systému modelované scény, který pro nás pøedstavuje souøadný systém snímku P.
+Vztah mezi souøadnými systémy nového snímku $P$ a pøedchozího snímku snímku $Q$ lze vyjádøit pomocí rigidní transformace $[\mathbf{R}, \mathbf{t}]$, která se skládá z matice rotace $\mathbf{R}$ a vektoru translace $\mathbf{t}$.
 
-\subsection{Výbìr bodù pro zarovnání} 
+Pro nalezení takovéto transformace byl pou¾it algoritmus ICP (Iterative closest point - \textit{iterace pøes nejbli¾¾¹í bod}). Jedná se o iteraèní algoritmus èasto pou¾ívaný v 3D grafice pro spojování prostorových objektù. V práci byla pou¾ita varianta algoritmu známá jako "bod - rovina" ("Point-to-plane").
 
-Pro výbìr bodù se kterými ICP pracuje lze zvolit nìkolik strategií  
+% cite: http://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
 
-\begin{itemize}
-	\item 
-	\textsc{Pou¾ití v¹ech bodù} je èasovì nejnároènìj¹í, ale dává velmi dobré výsledky a je odolné proti ¹umu.
-	\item
-	\textsc{Pou¾ití podmno¾iny bodù} s pravidelným nebo náhodným vzorkováním.
-	\item
-	\textsc{Výbìr zajímavých bodù} na základì obrazové informace. Mù¾e se jednat o body s vysokou intenzitou gradientu hloubky nebo jasové slo¾ky barevné informace (je-li dostupná).
-	\item
-\end{itemize}
+Prvním krokem v algoritmu ICP je nalezení shodných bodù mezi snímky $P$ a $Q$. Je známo nìkolik efektivních strategií pro hledání takovýchto shod. Nejjednodu¹¹í mo¾ností je pro ka¾dý bod z mno¾iny snímku $P$ projít v¹echny body snímku $Q$ a vybrat nejbli¾¹í. Metody tohoto typu jsou vhodné pøi zpracování snímkù mezi kterými je velká transformace a dávají velmi dobré výsledky. Jejich nevýhodou je v¹ak znaèná èasová slo¾itost (pøi naivní implementaci $O(N^2)$, pøi pou¾ití stromových datových struktur $O(n \cdot log n)$). %http://en.wikipedia.org/wiki/K-d_tree%
 
-V systému bylo pou¾ito náhodné vzorkování metodou Poisson Disk (viz \ref{fig:subsampling})
+Je-li v¹ak mezi obìma snímky transformace malá, lze s výhodou vyu¾ít pøedpokladu, ¾e hledaný nejbli¾¹í bod se na snímku $Q$ nachází na podobných souøadnicích $[u, v]$ jako na snímku $P$. Metoda zalo¾ená na tomto principu a pou¾ita v práci je oznaèována jako projektivní asociace (\textit{Projective data association}). 
 
-\subsection{Získání párù bodù} 
-
-Algoritmus ICP, jak u¾ název napovídá, pracuje nad páry nejbli¾¹ích bodù v jednotlivých snímcích. Tedy ke ka¾dému bodu $q_i$ z mno¾iny $\mathbf{Q}$ nového snímku musíme získat nejprve nejbli¾¹í bod $p_i$ z mno¾iny základního snímku $\mathbf{P}$. V ideálním pøípadì se jedná v reálném prostøedí o toto¾né body.
-
-\begin{itemize}
-	\item 
-	\textsc{Hledání v celém mno¾inì} je nejjednodu¹¹ím pøístupem. K nalezení bodu $p_i$ musíme prohledat celou mno¾inu $P$. Rychlej¹í 		variantou je nejprve body rozdìlit do stromové struktury, napøíklad K-d stromu nebo oktalového stromu a problém se redukuje na prohledávání stromu s výraznì ni¾¹í èasovou nároèností. Výhodou toho pøístupu jsou velmi kvalitní výsledky, mo¾nost zarovnávat i snímky mezi nimi¾ je velká transformace. Nicménì pro real-time pou¾ití je tento pøístup zcela nepou¾itelný a své místo nachází pøedev¹ím v aplikacích kde je výpoèetní èas ménì dùle¾itý v porovnání s pøesností.
-	\item
-	\textsc{Metody zalo¾ené na významných bodech} jako Lucas-Kanade pracují s 
-	\item
-	\textsc{Projektivní asociace} vychází z pøedpokladu ¾e mezi snímky je velmi malá transformace a bod se na jednom snímku nachází na velmi podobných souøadnicích jako na druhém. 
-	\textsc{Prohledávání okolí projekce} je roz¹íøením projektivní asociace. Místo toho abychom za nejbli¾¹í bod prohlásili pøímo bod na souøadnicích $[u, v]$, prohledáme oblast v jeho okolí a nalezneme nejbli¾¹í bod.
-\end{itemize}
-
-\begin{figure}[htpb]
-     \begin{center}
-        \subfigure[Projektivní asociace]{
-            \label{fig:first}
-            \includegraphics[width=0.45\textwidth]{img/projective_data_association.pdf}
-        }
-        \subfigure[Prohledávání okolí projekce]{
-           \label{fig:second}
-           \includegraphics[width=0.45\textwidth]{img/projective_data_search.pdf}
-        }
-    \end{center}
-    \caption{%
-        Princip projektivní asociace a prohledávání okolí projekce
-     }
-   \label{fig:associations}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/projective_data_association.pdf}
+  \caption{Princip projektivní asociace}
+  \label{fig:pda}
 \end{figure}
 
-\subsection{Popis algoritmu ICP}
+Po nalezení párù bodù mù¾eme urèit chybu mezi tìmito snímky. Nejjednodu¹¹í zpùsob pøedstavuje pou¾ití Eukleidovské vzdálenosti mezi spárovanými body - tedy metrika bod - bod. Nicménì efektivnìj¹í mo¾ností je pou¾ít metriku bod - rovina. Pøi ní vzdálenost mezi body v páru nahradíme vzdáleností $l$ mezi $p$ a rovinou bodu $p$ a jeho normály $n$.
 
-Relaci mno¾in $\mathbf{P}$ a $\mathbf{Q}$ mù¾eme vyjádøit jako
+%http://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/point_to_plane.pdf}
+  \caption{Metrika bod - rovina}
+  \label{fig:point2plane}
+\end{figure}
+
+Chybu zarovnání mù¾eme definovat 
 
 \begin{equation}
-p_i = \mathbf{R} q_i + \mathbf{t} + \mathbf{V}_i
+e = \sum_{i}[(\mathbf(R) \cdot \mathbf{p}_i + \mathbf{t} - \mathbf{q}_i) \cdot \mathbf{n}_i]^2
 \end{equation}
 
-kde $\mathbf{R}$ je ètvercová matice rotace, $\mathbf{T}$ je vektor translace a $\mathbf{V}$ pøedstavuje vektor ¹umu. Na¹ím cílem je nalézt takovou transformaci vyjádøenou pomocí $[\mathbf{\hat{R}}, \mathbf{\hat{t}}]$, která minimalizuje kriteriální funkci 
+Snímky pova¾ujeme za zarovnané, je-li $e <= \epsilon$, kde $\epsilon$ je zvolená tolerance. Nalezení vhodné transformace $[\mathbf{R}, \mathbf{t}]$ je ve své podstatì optimalizaèní problém metody nejmen¹ích ètvercù.
+
+Matice rotace $\mathbf{R}$ je tvoøena kosiny a siny Eulerových úhlù, jedná se tedy o nelineární funkci. Pøedpokládáme-li v¹ak, ¾e rotace mezi snímky je malá, mù¾eme ji aproximovat linearizovaným tvarem
 
 \begin{equation}
-e = \sqrt{\sum\limits_{i=1}^n \Vert p_i - \mathbf{\hat{R}} q_i - \mathbf{\hat{t}} \Vert^{2}}
-\end{equation}
-
-
-Nejprve urèíme tì¾i¹tì $\bar{p}$, $\bar{q}$ mno¾in $\mathbf{P}$ a $\mathbf{Q}$.
-
-\begin{equation}
-\bar{p} = \frac{1}{n} \sum\limits_{i=1}^n p_i \\*
-\bar{q} = \frac{1}{n} \sum\limits_{i=1}^n q_i
-\end{equation}
-
-Urèíme vektory mezi jednotlivými body mno¾in a jejich tì¾i¹ti.
-
-
-\begin{equation}
-p_ci = p_i - \bar{b}
-\end{equation}
-
-\begin{equation}
-q_ci = q_i - \bar{t}
-\end{equation}
-
-Následnì vypoèteme korelaèní matici $\mathbf{H}$ z tìchto vektorù.
-
-
-\begin{equation}
-\mathbf{H} = \sum\limits_{i=1}^n q_{ci} p_{ci}^T
-\end{equation}
-
-Pomocí singulárního rozkladu mù¾eme matici $\mathbf{H}$ rozlo¾it na vektory $\mathbf{U}$ a $\mathbf{V}$.
-
-
-\begin{equation}
-\mathbf{H} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T
-\end{equation}
-
-Ze kterých pak vypoèteme matici rotace. 
-
-
-\begin{equation}
-\mathbf{\hat{R}} = \mathbf{V} \mathbf{U}^T
-\end{equation}
-
-Pokud je $\det{(\mathbf{\hat{R}})} = -1$ pak do¹lo k selhání výpoètu. To mù¾e nastat, je-li v obraze pøíli¹ mnoho ¹umu, nebo jsou-li mno¾in bodù rovinné. V tomto pøípadì lze rotaci urèit 
-
-\begin{equation}
-\mathbf{\hat{R}} = \mathbf{U}
+\mathbf{R} \approx 
 \left(
 \begin{array}{ccc@{\ }r}
-	1 & 0 & 0 \\
-    0 & 1 & 0 \\
-    0 & 0 & \det{(\mathbf{U} \mathbf{V}^T)}
+	1 		& -\gamma 	& \beta	 	\\
+    \gamma 	& 1 		& -\alpha 	\\
+    -\beta	& \alpha	& 1
 \end{array}
 \right)
-\mathbf{V}^T
 \end{equation}
 
-Nejvhodnìj¹í translace je pak taková, která tì¾i¹tì mno¾iny $\mathbf{Q}$ posune do tì¾i¹tì mno¾iny $\mathbf{P}$.
+Vektor translace má obecný tvar
 
 \begin{equation}
-\mathbf{\hat{t}} = \bar{p} - \mathbf{\hat{R}} \bar{q}
+\mathbf{t} = 
+\begin{array}{ccc@{\ }r}
+	t_x	 	&
+    t_y 	&
+    t_z
+\end{array}^T
 \end{equation}
 
-Získanou transformaci mù¾eme aplikovat na jednotlivé prvky mno¾iny $\mathbf{Q}$
+jeho slo¾ky pøedstavují posunutí ve smìru os souøadného systému. 
+
+Definujeme-li 
+\begin{equation}
+\mathbf{c}_i = \mathbf{p}_i  \mathbf{n}_i
+\end{equation}
+
+Mù¾eme chybu zarovnání zapsat jako
 
 \begin{equation}
-q_i = \mathbf{R} p_i + \mathbf{t}
+e = \sum_{i}[(\mathbf{p}_i - \mathbf{q}_i) \cdot \mathbf{n}_i + \mathbf{t} \cdot \mathbf{n}_i + \mathbf{R} \cdot \mathbf{c}_i]^2
 \end{equation}
 
-Vypoèteme hodnotu kriteriální funkce a je-li dostateènì malá algoritmus ukonèíme. Není-li tomu tak, opakujeme algoritmus do té body ne¾ jsou snímky dostateènì zarovnané nebo nedosáhneme maximálního poètu iterací. 
+Hledanými parametry jsou úhly $\alpha$, $\beta$, $\gamma$ a posunutí $t_x$, $t_y$, $t_z$. Úlohu lze øe¹it pomocí metody nejmen¹ích ètvercù, která vede na øe¹ení lineární soustavy 
+
+\begin{equation}
+\sum_{i}
+\left(
+\begin{array}{cccccc@{\ }r}
+	c_{i,x} c_{i,x}		& 	c_{i,x} c_{i,y}		&	c_{i,x} c_{i,z}		&	c_{i,x} n_{i,x}		&	c_{i,x} n_{i,y}		&	c_{i,x} n_{i,z}	\\
+    c_{i,y} c_{i,x} 	& 	c_{i,y} c_{i,y}		&	c_{i,y} c_{i,z}		&	c_{i,y} n_{i,x}		&	c_{i,y} n_{i,y}		&	c_{i,y} n_{i,z}	\\
+    c_{i,z} c_{i,x}		& 	c_{i,z} c_{i,y}		&	c_{i,z} c_{i,z}		&	c_{i,z} n_{i,x}		&	c_{i,z} n_{i,y}		&	c_{i,z} n_{i,z} \\
+    n_{i,x} c_{i,x}		&	n_{i,x} c_{i,y}		&	n_{i,x} c_{i,z}		&	n_{i,x} n_{i,x}		&	n_{i,x} n_{i,y}		&	n_{i,x} n_{i,z} \\
+    n_{i,y} c_{i,x}		&	n_{i,y} c_{i,y}		&	n_{i,y} c_{i,z}		&	n_{i,y} n_{i,x}		&	n_{i,y} n_{i,y}		&	n_{i,y} n_{i,z} \\
+    n_{i,z} c_{i,x}		&	n_{i,z} c_{i,y}		&	n_{i,z} c_{i,z}		&	n_{i,z} n_{i,x}		&	n_{i,z} n_{i,y}		&	n_{i,z} n_{i,z}
+\end{array}
+\right)
+\left(
+\begin{array}{c@{\ }r}
+	\alpha 	\\
+    \beta   \\
+    \gamma  \\
+    t_x		\\
+    t_y		\\
+    t_z	
+\end{array}
+\right) =  - \sum_{i}
+\left(
+\begin{array}{c@{\ }r}
+	c_i,x (p_i - q_i) \cdot n_i 	\\
+    c_i,y (p_i - q_i) \cdot n_i 	\\
+    c_i,z (p_i - q_i) \cdot n_i 	\\
+    n_i,x (p_i - q_i) \cdot n_i 	\\
+    n_i,y (p_i - q_i) \cdot n_i 	\\
+    n_i,z (p_i - q_i) \cdot n_i 	
+\end{array}
+\right)
+\end{equation}
+
+
+Vzhledem k tomu, ¾e matice je symetrické, mù¾eme k øe¹ení efektivnì vyu¾ít LU nebo QR rozklad. Získaný vektor $\mathbf{x}$ je tvoøen Eulerovými úhly a slo¾kami translaèního vektoru.
 
 %------------------------------------------------------------------------------------------------------------------------------------------%
 
-\section{Reprezentace bodového mraèna v programové pamìti}
+\section{Objemová reprezentace dat}
+ 
+Známe-li transformaci nového snímku vùèi globálního systému, mù¾eme jej zaèlenit do celkového modelu scény. Ten je reprezentován formou objemových dat. Model si mù¾eme pøedstavit jako krychli obsahující èást snímaného prostoru. Celá krychle je pravidelnì rozdìlena na malé krychlové podoblasti - voxely. Vzhledem k velké datové nároènosti takovéhoto zpùsobu reprezentace modelu je oblast, která do nìj lze zachytit silnì omezena. V práci byla pou¾ita krychle o rozmìrech $3 m \times 3 m \times 3m$, která byla rozdìlena na $512 \times 512 \times 512$ voxelù. 
+Ka¾dý voxel obsahuje dvì hodnoty. Hodnotu vzdálenostní funkce a její váhu. Oøíznutá znaménková funkce vzdálenosti (truncated signed distance function) reprezentuje vzdálenost mezi støedem buòky a povrchem pøedmìtu. 
 
-Pro uchování zarovnaných snímkù byla pou¾ita datová struktura \emph{oktalový strom} (té¾ \emph{oktantový strom}, \emph{octree}). Jedná se o stromovou strukturu pou¾ívanou v poèítaèové grafice pro ukládání a reprezentaci trojrozmìrných scén. Oktalový strom je o analogickým roz¹íøením 1-rozmìrných binárních stromù. 
-
-\begin{figure}[htbp]
+\begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.5\textwidth]{img/octree_struc.png}
-  \caption{Struktura oktalového stromu ve dvourozmìrné podobì}
-  \label{fig:octree}
+  \includegraphics[width=0.7\textwidth]{img/tsdf.pdf}
+  \caption{Prùbìh TSDF}
+  \label{fig:tsdf}
 \end{figure}
 
-Struktura se skládá z koøene, který si mù¾eme pøedstavit jako krychli zahrnující urèitý prostor. Koøen má 8 potomkù - bunìk (\emph{oktantù}, \emph{octants}), které koøenovou krychli dìlí na 8 men¹ích krychlí. Ka¾dý z oktantù mù¾e mít svých 8 potomkù, nebo mù¾e být koncovým uzlem, neboli listem (\emph{leaf}). V listu jsou pak ulo¾eny souøadnice v¹ech vertexù, které se v dané oblasti prostoru vymezené krychlí uzlu nacházejí. 
+Hodnota 0 znamená, ¾e hrana prochází pøímo støedem. Hodnota $-1$ reprezentuje buòky uvnitø pøedmìtu, kterými ¾ádná hrana neprochází. Hodnota $+1$ analogicky oznaèuje buòky vnì pøedmìtu bez hrany. Hodnoty $(0, 1)$
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.5\textwidth]{img/octree_rabit.jpg}
-  \caption{Model králíka zachycený ve struktuøe oktalového stromu}
-  \label{fig:octree}
+  \includegraphics[width=0.7\textwidth]{img/sdf.pdf}
+  \caption{2D køivka popsána pomocí skalárního pole hodnot TSDF}
+  \label{fig:sdf}
 \end{figure}
+
+%------------------------------------------------------------------------------------------------------------------------------------------%
+
+\section{Získání hloubkového snímku z objemových dat}
+
+V podkapitole ~\ref{sec:Spojování snímkù} byl uveden postup pro výpoèet transformace nového snímku vùèi pøedchozímu snímku. Pokud bychom pou¾ili pøedchozí snímek z Kinectu, do¹lo by pomìrnì brzy k akumulaci drobných chyb v zarovnání. Tento relativní zpùsob zarovnávání je tedy reálnì nepou¾itelný. 
+
+První mo¾ností, jak relativní zpùsob nahradit je pou¾ít absolutní zarovnávání vùèi úplnì prvnímu pøijatému pro v¹echny nové snímky. To by v¹ak bylo pou¾itelné pouze pro nìkolik málo snímkù málo transformovaných oproti prvnímu snímku. 
+
+Jako nejrozumnìj¹í mo¾nost se jeví pou¾ít relativní zpùsob zarovnávání, ale místo reálnì pøijatého pøedchozího snímku vytvoøit virtuální snímek z objemového modelu pro pøedchozí model kamery. Pro tento úkol je mimoøádnì vhodná metoda trasování paprsku (ray casting).
+
+
+
+%------------------------------------------------------------------------------------------------------------------------------------------%
+
+\section{Generování trojúhelníkové sítì}
+%http://www.cs.virginia.edu/johntran/GLunch/marchingcubes.pdf%
+Pro vykreslení modelu jsou objemová data pøevedena na polygonovou sí» reprezentující povrch. K vytvoøení polygonové trojúhelníkové sítì je znám pomìrnì efektivní a jednoduchý algoritmus "pochodující kostky" (marching cubes). Kostky neboli buòky jsou tvoøeny z 8 sousedících voxelù objemové møí¾ky. Její rohy jsou vertexy vypoètené jako støed voxelu.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img/voxel-cell.pdf}
+  \caption{Vztah mezi buòkou a voxely}
+  \label{fig:marching_cubes_triangles}
+\end{figure}
+
+Poèet bunìk, nacházejících se na rozhraní mezi modelem tìlesa a okolím je ve srovnání s celkovým poètem objemových bunìk relativnì malý. Je tedy výhodné algoritmus aplikovat pouze na takovéto buòky. K tomu byla pou¾ita jednoduchý metoda, která projde v¹echny buòky a na výstup zapí¹e indexy tìch, kde je hodnota $TSDF \in (-1 ; 1)$. Seznam indexù bunìk na rozhraní slou¾í jako jeden z parametrù algoritmu marching cubes.
+
+Algoritmus urèí, jakým zpùsobem plocha prochází buòkou a poté pøejde ("pochoduje") k dal¹í kostce. K urèení øezu, který plocha v buòce vytváøí, nejprve urèíme, které rohy buòky le¾í pøed a které za plochou. Vertexy pøed plochou oznaèíme bitovou 1, vertexy za plochou oznaèíme 0. Z bitù pro jednotlivé vertexy sestavíme 8-bitové èíslo - index buòky. Proto¾e je buòka tvoøena 8 vrcholy, existuje $2^8 = 256$ mo¾ných topologických variant øezu. Jednotlivé varianty jsou pøedem známy a ulo¾eny ve statické tabulce trojúhelníkù. Pro pøístup k topologii øezu v tabulce trojúhelníkù slou¾í právì 8-bitový index buòky.
+
+Topologie øezu popisuje definuje hrany, které obsahují vrchol nìkterého trojúhelníku. K výpoètu reálných souøadnic vrcholù trojúhelníku je pou¾ita lineární interpolace za pomoci hodnot TSDF v jednotlivých rozích. 
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[label=triangle_map,caption={Èást tabulky trojúhelníkù}]
+__constant int triangle_map[4096] = 
+{
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,		
+//  trojúhelník neprotíná ¾ádnou hranu
+	0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,		
+//  trojúhelník protíná hrany èíslo 0, 8 a 3
+	0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	
+//  trojúhelník protíná hrany èíslo 0, 1, a 9
+	1, 8, 3, 9, 8, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,			
+//  první trojúhelník protíná hrany èíslo 1, 8, a 3, druhý hrany 9, 8, a 1
+	...
+\end{lstlisting}
+\end{minipage}	
+	
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img/marching-cubes.jpg}
+  \caption{Konfigurace povrchových polygonù v buòce dle vertexù le¾ících mimo tìleso}
+  \label{fig:marching_cubes_triangles}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img/cube.pdf}
+  \caption{Èíslování hran a vrcholù buòky}
+  \label{fig:marching_cubes_case}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img/marching_cubes.pdf}
+  \caption{Buòka protnutá plochou, její index a pøíslu¹ná topologie}
+  \label{fig:marching_cubes_case}
+\end{figure}
+

@@ -10,3 +10,5 @@ PoissonDisk.gif - ukázka náhodně vygenerovaného rozložení metodou PoissonD
 octree_rabit - http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter37.html
 
 kinect_senzor - http://www.microsoft.com/global/en-us/news/publishingimages/Kinect_Sensor_Print.jpg
+
+marching-cubes - http://http.developer.nvidia.com/GPUGems3/elementLinks/01fig04.jpg

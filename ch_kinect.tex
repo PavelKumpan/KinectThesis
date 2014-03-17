@@ -10,7 +10,7 @@ Firmware Kinectu umo¾òuje detekci osob ve scénì i jednotlivých gest. Zaøízení ta
 
 Pro tvorbu softwaru lze vyu¾ít dvou nejroz¹íøenìj¹ích SDK. Oficiální Kinect SDK od spoleènosti Microsoft a komunitní otevøené SDK OpenKinect. Pro úèely této práce bylo pou¾ito oficiální Kinect SDK.
 
-\begin{figure}[htbp]
+\begin{figure}[h]
   	\centering
   	\includegraphics[width=\textwidth]{img/Kinect_Sensor.png}
   	\caption{Zaøízení Kinect}
@@ -21,7 +21,7 @@ Pro tvorbu softwaru lze vyu¾ít dvou nejroz¹íøenìj¹ích SDK. Oficiální Kinect SDK 
 
 V této práci byl primárnì vyu¾íván hloubkový senzor zaøízení. Skládá se z infraèerveného laserového emitoru a monochromatického CMOS senzoru. Díky pou¾ití infraèerveného rozsahu spektra jej lze vyu¾ívat relativnì nezávisle na svìtelných podmínkách. Emitor na snímanou scénu stále promítá vzor bodù. 
 
-\begin{figure}[htbp]
+\begin{figure}[h]
   	\centering
   	\includegraphics[width=0.6\textwidth]{img/frame_infra.jpg}
   	\caption{Snímek promítaného vzoru v infraèerveném spektru}
@@ -30,21 +30,21 @@ V této práci byl primárnì vyu¾íván hloubkový senzor zaøízení. Skládá se z infraè
 
 Body je následnì snímán CMOS senzorem a z porovnání rozdílu mezi vzorem snímaným a promítaným jsou pomocí stereo triangulace vypoèteny vzdálenosti pro jednotlivé pixely snímaného obrazu. Ty jsou poté do déle pøedány jako pole 16-bitových hodnot které tvoøí takzvanou hloubkovou mapu. První tøi bity obsahují informaci o hráèi, nachází-li se bod na nìjakém. Horních tøináct bitù pak obsahuje vzdálenost bodu scény od senzoru v milimetrech.
 
-\begin{figure}[htbp]
+\begin{figure}[h]
+  	\centering
+  	\includegraphics[width=0.6\textwidth]{img/frame_depth.jpg}
+  	\caption{Hloubkový snímek s hloubkou vyjádøenou pomocí odstínù ¹edi}
+  	\label{fig:kinect}
+\end{figure}
+
+\begin{figure}[h]
   \centering
-  \includegraphics[width=\textwidth]{img/kinect_model.pdf}
+  \includegraphics[width=0.9\textwidth]{img/kinect_model.pdf}
   \caption{Princip hloubkového senzoru}
   \label{fig:model}
 \end{figure}
 
 
 
-
-\begin{figure}[htbp]
-  	\centering
-  	\includegraphics[width=0.6\textwidth]{img/frame_depth.jpg}
-  	\caption{Hloubkový snímek s hloubkou vyjádøenou pomocí odstínù ¹edi}
-  	\label{fig:kinect}
-\end{figure}
 
 %http://en.wikipedia.org/wiki/Kinect
